@@ -5,12 +5,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Auth } from '../../services/auth';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  selector: 'app-register',
+  templateUrl: './register.html',
+  styleUrls: ['./register.css']
 })
-export class LoginComponent {
-  loginForm: FormGroup;
+export class RegisterComponent {
+  registerForm: FormGroup;
   hidePassword = true;
   loading = false;
 
@@ -20,28 +20,29 @@ export class LoginComponent {
     private router: Router,
     private snackBar: MatSnackBar
   ) {
-    this.loginForm = this.fb.group({
+    this.registerForm = this.fb.group({
+      nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required]]
+      senha: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
+    if (this.registerForm.valid) {
       this.loading = true;
-      this.authService.login(this.loginForm.value).subscribe({
+      this.authService.register(this.registerForm.value).subscribe({
         next: (response) => {
           this.loading = false;
-          this.snackBar.open(response.message, 'Fechar', {
+          this.snackBar.open('Usuário cadastrado com sucesso!', 'Fechar', {
             duration: 3000,
             horizontalPosition: 'center',
             verticalPosition: 'top'
           });
-          this.router.navigate(['/home']);
+          this.router.navigate(['/login']);
         },
         error: (error) => {
           this.loading = false;
-          const message = error.error?.message || 'Erro ao fazer login';
+          const message = error.error?.message || 'Erro ao cadastrar usuário';
           this.snackBar.open(message, 'Fechar', {
             duration: 3000,
             horizontalPosition: 'center',
@@ -53,7 +54,7 @@ export class LoginComponent {
     }
   }
 
-  goToRegister(): void {
-    this.router.navigate(['/register']);
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 }

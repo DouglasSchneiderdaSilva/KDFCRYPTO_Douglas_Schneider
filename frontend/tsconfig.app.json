@@ -10,7 +10,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "src/app/home/home.Componentts"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]
