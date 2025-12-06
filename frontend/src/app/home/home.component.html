@@ -1,0 +1,26 @@
+<div class="home-container">
+  <mat-card class="welcome-card">
+    <mat-card-header>
+      <div class="avatar-container">
+        <mat-icon class="user-avatar">account_circle</mat-icon>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <h1 class="welcome-title">Bem-vindo, {{ user?.nome }}!</h1>
+      <p class="welcome-subtitle">Você está autenticado no sistema</p>
+      
+      <div class="user-info">
+        <mat-icon>email</mat-icon>
+        <span>{{ user?.email }}</span>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button color="warn" (click)="logout()">
+        <mat-icon>exit_to_app</mat-icon>
+        Sair
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

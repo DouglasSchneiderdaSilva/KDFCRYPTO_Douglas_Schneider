@@ -1,11 +1,12 @@
 const db = require('../database/connection');
+const argon2 = require('argon2');
 
-// Registro de usuário
+
 exports.register = async (req, res) => {
   try {
     const { nome, email, senha } = req.body;
 
-    // Validações
+    
     if (!nome || nome.length < 3) {
       return res.status(400).json({ message: 'Nome deve ter no mínimo 3 caracteres' });
     }
@@ -18,7 +19,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Senha deve ter no mínimo 6 caracteres' });
     }
 
-    // Verificar se email já existe
+    
     db.query('SELECT * FROM usuarios WHERE email = ?', [email], async (err, results) => {
       if (err) {
         return res.status(500).json({ message: 'Erro no servidor', error: err });
@@ -28,9 +29,17 @@ exports.register = async (req, res) => {
         return res.status(400).json({ message: 'Email já cadastrado' });
       }
 
-      // Inserir usuário no banco (senha em texto plano)
+      // Gerar hash Argon2
+      const hash = await argon2.hash(senha, {
+        type: argon2.argon2id,
+        memoryCost: 2 ** 16, 
+        timeCost: 3,
+        parallelism: 1
+      });
+
+      
       const query = 'INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)';
-      db.query(query, [nome, email, senha], (err, result) => {
+      db.query(query, [nome, email, hash], (err, result) => {
         if (err) {
           return res.status(500).json({ message: 'Erro ao cadastrar usuário', error: err });
         }
@@ -43,17 +52,16 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login de usuário
+
 exports.login = async (req, res) => {
   try {
     const { email, senha } = req.body;
 
-    // Validações
     if (!email || !senha) {
       return res.status(400).json({ message: 'Email e senha são obrigatórios' });
     }
 
-    // Buscar usuário no banco
+    
     db.query('SELECT * FROM usuarios WHERE email = ?', [email], async (err, results) => {
       if (err) {
         return res.status(500).json({ message: 'Erro no servidor', error: err });
@@ -65,12 +73,13 @@ exports.login = async (req, res) => {
 
       const user = results[0];
 
-      // Comparar senha diretamente
-      if (senha !== user.senha) {
+    
+      const senhaCorreta = await argon2.verify(user.senha, senha);
+
+      if (!senhaCorreta) {
         return res.status(401).json({ message: 'Email ou senha incorretos' });
       }
 
-      // Retornar dados sem token
       res.json({
         message: 'Login efetuado com sucesso',
         user: {

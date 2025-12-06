@@ -3,7 +3,7 @@ const cors = require('cors');
 const authRoutes = require('./src/routes/auth.routes');
 
 const app = express();
-const PORT = process.env.PORT || 3306;
+const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(cors());
